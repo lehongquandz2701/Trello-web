@@ -3,8 +3,8 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-import { TSelectOption } from "./type";
 import { Box } from "@mui/material";
+import { TSelectOption } from "../utilities/types";
 
 type TSelectAutoWidth = {
   dataOption: TSelectOption[];
