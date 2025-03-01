@@ -1,4 +1,5 @@
 import { createTheme } from "@mui/material";
+import { blue, deepOrange } from "@mui/material/colors";
 
 declare module "@mui/material/styles" {
   interface Theme {
@@ -18,11 +19,46 @@ declare module "@mui/material/styles" {
 
 const themeMode = createTheme({
   colorSchemes: {
-    dark: true,
+    dark: {
+      palette: {
+        primary: blue,
+        secondary: deepOrange,
+      },
+    },
+    light: {
+      palette: {
+        primary: blue,
+        secondary: deepOrange,
+      },
+    },
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: "none",
+        },
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          fontSize: "0.875rem",
+        },
+      },
+    },
+    MuiTypography: {
+      styleOverrides: {
+        root: {
+          wordWrap: "break-word",
+          whiteSpace: "normal",
+        },
+      },
+    },
   },
   spacingCustom: {
-    header: "48px",
-    tabbar: "58px",
+    header: "58px",
+    tabbar: "60px",
   },
 });
 

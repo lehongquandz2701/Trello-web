@@ -12,46 +12,57 @@ type TSelectAutoWidth = {
   initValue: string;
 };
 
-export default function SelectAutoWidth({
-  dataOption,
-  onSelect,
-  initValue,
-}: TSelectAutoWidth) {
-  const [age, setAge] = React.useState(initValue);
+const SelectAutoWidth = React.memo(
+  ({ dataOption, onSelect, initValue }: TSelectAutoWidth) => {
+    const [age, setAge] = React.useState(initValue);
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setAge(event.target.value);
-    onSelect(event);
-  };
+    const handleChange = (event: SelectChangeEvent) => {
+      setAge(event.target.value);
+      onSelect(event);
+    };
 
-  return (
-    <div>
-      <FormControl sx={{ m: 1, minWidth: 80 }}>
-        <InputLabel id="demo-simple-select-autowidth-label">Mode</InputLabel>
-        <Select
-          labelId="demo-simple-select-autowidth-label"
-          id="demo-simple-select-autowidth"
-          value={age}
-          onChange={handleChange}
-          autoWidth
-          label="Mode"
+    const menuItems = React.useMemo(() => {
+      return dataOption.map((item) => (
+        <MenuItem key={item.value} value={item.value}>
+          <Box
+            sx={{
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 1,
+              display: "flex",
+              fontSize: "14px",
+            }}
+          >
+            {item.icon} {item.title}
+          </Box>
+        </MenuItem>
+      ));
+    }, [dataOption]);
+
+    return (
+      <div>
+        <FormControl
+          sx={{
+            m: 1,
+            minWidth: 120,
+          }}
+          size="small"
         >
-          {dataOption.map((item) => (
-            <MenuItem value={item.value}>
-              <Box
-                sx={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  gap: 2,
-                  display: "flex",
-                }}
-              >
-                {item.icon} {item.title}
-              </Box>
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-    </div>
-  );
-}
+          <InputLabel id="demo-simple-select-autowidth-label">Mode</InputLabel>
+          <Select
+            labelId="demo-controlled-open-select-label"
+            id="demo-controlled-open-select"
+            value={age}
+            onChange={handleChange}
+            autoWidth
+            label="Mode"
+          >
+            {menuItems}
+          </Select>
+        </FormControl>
+      </div>
+    );
+  }
+);
+
+export default SelectAutoWidth;

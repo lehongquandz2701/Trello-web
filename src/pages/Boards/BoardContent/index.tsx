@@ -1,20 +1,23 @@
-import { Box } from "@mui/material";
-
+import { BoardItem, List } from "~/components";
+import background from "~/assets/image/bg.png";
 const BoardContent = () => {
   return (
-    <Box
-      sx={{
-        width: "100%",
-        display: "flex",
-        alignItems: "center",
-        height: (theme) =>
-          `calc(100vh - ${
-            theme.spacingCustom.tabbar + theme.spacingCustom.header
-          })`,
-      }}
-    >
-      BoardContent
-    </Box>
+    <>
+      <img
+        style={{
+          objectFit: "cover",
+          width: "100%",
+          height: "calc(100vh  - 118px)",
+          position: "absolute",
+          top: "118px",
+          zIndex: -1,
+        }}
+        src={background}
+        alt="background"
+        loading="lazy"
+      />
+      <List content={<BoardItem />} />
+    </>
   );
 };
 

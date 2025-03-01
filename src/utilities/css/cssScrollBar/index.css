@@ -1,0 +1,17 @@
+.virtuoso::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  .virtuoso::-webkit-scrollbar-thumb {
+    background: #313A39;
+    border-radius: 4px;
+  }
+  
+  .virtuoso::-webkit-scrollbar-thumb:hover {
+    background: #ced0da;
+  }
+  .virtuoso {
+     height: "calc(100vh - 118px)";
+      width: "100%"
+  }
+ 
