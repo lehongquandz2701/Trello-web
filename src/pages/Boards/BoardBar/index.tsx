@@ -5,8 +5,13 @@ import AddToDriveIcon from "@mui/icons-material/AddToDrive";
 import BoltIcon from "@mui/icons-material/Bolt";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import { TBoard } from "~/utilities/types";
 
-const BoardBar = () => {
+type TBoardBarProps = {
+  board: TBoard;
+};
+
+const BoardBar = ({ board }: TBoardBarProps) => {
   return (
     <Box
       sx={{
@@ -27,16 +32,17 @@ const BoardBar = () => {
           }}
           clickable
           icon={<DashboardIcon />}
-          label="your  name project"
+          label={board.title}
         />
         <Chip
           sx={{
             border: "none",
             background: "none",
+            textTransform: "capitalize",
           }}
           clickable
           icon={<VpnLockIcon />}
-          label="Public/Private workspaces"
+          label={board.type}
         />
         <Chip
           sx={{
