@@ -8,21 +8,49 @@ import GroupIcon from "@mui/icons-material/Group";
 import CommentIcon from "@mui/icons-material/Comment";
 import AttachmentIcon from "@mui/icons-material/Attachment";
 import { useMemo } from "react";
+import { TCards } from "~/utilities/types";
 
 type TMediaCard = {
-  urlImage?: string;
-  title: string;
+  data: TCards;
 };
 
-export default function MediaCard({ title, urlImage }: TMediaCard) {
+export default function MediaCard({ data }: TMediaCard) {
   const memoImage = useMemo(() => {
-    if (!urlImage) {
+    if (!data.cover) {
       return <></>;
     }
     return (
-      <CardMedia sx={{ height: 140 }} image={urlImage} title="green iguana" />
+      <CardMedia sx={{ height: 140 }} image={data.cover} title={data.title} />
     );
-  }, []);
+  }, [data]);
+
+  const memoStateAction = useMemo(() => {
+    if (
+      !!data.memberIds.length ||
+      !!data.comments.length ||
+      !!data.attachments.length
+    ) {
+      return (
+        <CardActions
+          sx={{
+            padding: "0 4px 8px 4px",
+          }}
+        >
+          <Button startIcon={<GroupIcon />} size="small">
+            {data.memberIds.length}
+          </Button>
+          <Button startIcon={<CommentIcon />} size="small">
+            {data.comments.length}
+          </Button>
+
+          <Button startIcon={<AttachmentIcon />} size="small">
+            {data.attachments.length}
+          </Button>
+        </CardActions>
+      );
+    }
+    return;
+  }, [data]);
 
   return (
     <Card
@@ -40,23 +68,10 @@ export default function MediaCard({ title, urlImage }: TMediaCard) {
           },
         }}
       >
-        <Typography>{title}</Typography>
+        <Typography>{data.title}</Typography>
       </CardContent>
-      <CardActions
-        sx={{
-          padding: "0 4px 8px 4px",
-        }}
-      >
-        <Button startIcon={<GroupIcon />} size="small">
-          20
-        </Button>
-        <Button startIcon={<CommentIcon />} size="small">
-          20
-        </Button>
-        <Button startIcon={<AttachmentIcon />} size="small">
-          20
-        </Button>
-      </CardActions>
+
+      {memoStateAction}
     </Card>
   );
 }
