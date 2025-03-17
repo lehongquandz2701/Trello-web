@@ -9,12 +9,22 @@ import CommentIcon from "@mui/icons-material/Comment";
 import AttachmentIcon from "@mui/icons-material/Attachment";
 import { useMemo } from "react";
 import { TCards } from "~/utilities/types";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 type TMediaCard = {
   data: TCards;
 };
 
 export default function MediaCard({ data }: TMediaCard) {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: data._id, data });
+
+  const styleDndCard = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   const memoImage = useMemo(() => {
     if (!data.cover) {
       return <></>;
@@ -26,9 +36,9 @@ export default function MediaCard({ data }: TMediaCard) {
 
   const memoStateAction = useMemo(() => {
     if (
-      !!data.memberIds.length ||
-      !!data.comments.length ||
-      !!data.attachments.length
+      !!data?.memberIds?.length ||
+      !!data?.comments?.length ||
+      !!data?.attachments?.length
     ) {
       return (
         <CardActions
@@ -37,14 +47,14 @@ export default function MediaCard({ data }: TMediaCard) {
           }}
         >
           <Button startIcon={<GroupIcon />} size="small">
-            {data.memberIds.length}
+            {data?.memberIds?.length}
           </Button>
           <Button startIcon={<CommentIcon />} size="small">
-            {data.comments.length}
+            {data?.comments?.length}
           </Button>
 
           <Button startIcon={<AttachmentIcon />} size="small">
-            {data.attachments.length}
+            {data?.attachments?.length}
           </Button>
         </CardActions>
       );
@@ -53,25 +63,28 @@ export default function MediaCard({ data }: TMediaCard) {
   }, [data]);
 
   return (
-    <Card
-      sx={{
-        maxWidth: 345,
-        background: (theme) =>
-          theme.palette.mode === "dark" ? "#22272b" : "#b8cad2",
-      }}
-    >
-      {memoImage}
-      <CardContent
+    <div {...listeners} {...attributes} style={styleDndCard} ref={setNodeRef}>
+      <Card
         sx={{
-          ":last-child": {
-            paddingBottom: "18px",
-          },
+          maxWidth: 345,
+          background: (theme) =>
+            theme.palette.mode === "dark" ? "#22272b" : "#b8cad2",
+          display: data.FE_PlaceholderCard ? "none" : "block",
         }}
       >
-        <Typography>{data.title}</Typography>
-      </CardContent>
+        {memoImage}
+        <CardContent
+          sx={{
+            ":last-child": {
+              paddingBottom: "18px",
+            },
+          }}
+        >
+          <Typography>{data.title}</Typography>
+        </CardContent>
 
-      {memoStateAction}
-    </Card>
+        {memoStateAction}
+      </Card>
+    </div>
   );
 }

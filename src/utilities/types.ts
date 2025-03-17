@@ -27,10 +27,11 @@ export type TCards = {
   _id: string;
   boardId: string;
   columnId: string;
-  title: string;
-  description: string | null;
-  cover: string | null;
-  memberIds: string[]; // This should be an array, not a string
-  comments: string[]; // This should be an array, not a string
-  attachments: string[];
+  title?: string;
+  description?: string | null;
+  cover?: string | null;
+  memberIds?: string[]; // This should be an array, not a string
+  comments?: string[]; // This should be an array, not a string
+  attachments?: string[];
+  FE_PlaceholderCard?: boolean;
 };
