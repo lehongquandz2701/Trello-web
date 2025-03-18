@@ -1,12 +1,13 @@
-import { Box, Button, IconButton } from "@mui/material";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import { useCallback, useMemo, useState } from "react";
-import AddIcon from "@mui/icons-material/Add";
-import TextareaAutosize from "react-textarea-autosize";
+import { Box } from "@mui/material";
 import { TColumns } from "~/utilities/types";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import ListCard from "~/pages/Boards/BoardContent/ListCard";
+import InputCustom from "./InputCustom";
+import { useDisclose } from "~/hooks";
+import AddItemComponent from "./AddItemComponent";
+import { useCallback, useState } from "react";
+import { toast } from "react-toastify";
 
 type TBoardItemProps = {
   item: TColumns;
@@ -29,17 +30,25 @@ const BoardItem = ({ item }: TBoardItemProps) => {
     opacity: isDragging ? 0.5 : undefined,
   };
 
-  const [isFocus, setFocus] = useState(false);
+  const addCard = useDisclose();
+  const [newCardTitle, setCardTitle] = useState<string>("");
 
-  const styleInput = useMemo(() => {
-    return isFocus
-      ? { border: "2px solid #00e5ff", borderRadius: 5 }
-      : undefined;
-  }, [setFocus, isFocus]);
+  const addNewColumn = useCallback(() => {
+    if (!newCardTitle)
+      return toast.error("Please Enter Title", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
 
-  const onFocusAndBlur = useCallback(() => {
-    setFocus((prev) => !prev);
-  }, [setFocus]);
+    setCardTitle("");
+    addCard.onToggle();
+  }, [newCardTitle, setCardTitle, addCard.onToggle]);
 
   return (
     <div {...attributes} style={dndKitColumnStyle} ref={setNodeRef}>
@@ -59,85 +68,21 @@ const BoardItem = ({ item }: TBoardItemProps) => {
             height: "fit-content",
           }}
         >
-          <Box
-            sx={{
-              width: "100%",
-              alignItems: "center",
-              justifyContent: "center",
-              display: "flex",
-              position: "relative",
-              marginBottom: "10px",
-              height: 40,
-            }}
-          >
-            <TextareaAutosize
-              value={item.title}
-              maxRows={15}
-              onFocus={onFocusAndBlur}
-              onBlur={onFocusAndBlur}
-              style={{
-                marginRight: "50px",
-                height: 34,
-                width: "100%",
-                overflow: "hidden",
-                outline: "none",
-                padding: "5px 10px",
-                fontSize: "16px",
-                fontWeight: "500",
-                borderRadius: 5,
-                resize: "none",
-                ...styleInput,
-              }}
-            />
-
-            <IconButton
-              sx={{
-                position: "absolute",
-                top: 0,
-                right: 5,
-                ":hover": {
-                  bgcolor: "#393b3d",
-                  borderRadius: 2,
-                },
-              }}
-              aria-label="add an alarm"
-            >
-              <MoreHorizIcon />
-            </IconButton>
-          </Box>
+          <InputCustom value={item.title} isShowOption />
 
           <ListCard cards={item.cards} cardOrderIds={item.cardOrderIds} />
 
-          <Box
-            sx={{
-              width: "100%",
-              height: 40,
-            }}
-          >
-            <Button
-              startIcon={
-                <AddIcon
-                  sx={{
-                    height: "20px",
-                    width: "20px",
-                  }}
-                />
-              }
-              sx={{
-                width: "85%",
-                justifyContent: "flex-start",
-                ":hover": {
-                  bgcolor: "#393b3d",
-                  borderRadius: 2,
-                },
-                color: (theme) =>
-                  theme.palette.mode === "dark" ? "white" : "black",
-                fontSize: "16px",
-              }}
-            >
-              Add a card
-            </Button>
-          </Box>
+          <AddItemComponent
+            placeholder="Enter title or paste a link"
+            title="Add a card"
+            width="100%"
+            isOpen={addCard.isOpen}
+            onToggle={addCard.onToggle}
+            value={newCardTitle}
+            onchange={setCardTitle}
+            onClick={addNewColumn}
+            titleButton={"Add card"}
+          />
         </Box>
       </Box>
     </div>

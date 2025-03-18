@@ -1,8 +1,7 @@
 import { cloneDeep, isEmpty } from "lodash";
-import { BoardItem, MediaCard } from "~/components";
+import { AddItemComponent, BoardItem, MediaCard } from "~/components";
 import background from "~/assets/image/bg.png";
-import { Box, Button } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
+import { Box } from "@mui/material";
 import { TBoard, TCards, TColumns } from "~/utilities/types";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { mapOrder } from "~/hepler";
@@ -16,10 +15,6 @@ import {
   DragEndEvent,
   useSensors,
   useSensor,
-  PointerSensor,
-  TouchSensor,
-  MouseSensor,
-  KeyboardSensor,
   DragStartEvent,
   DragOverlay,
   defaultDropAnimationSideEffects,
@@ -37,6 +32,8 @@ import {
 } from "@dnd-kit/core";
 import { RectMap } from "@dnd-kit/core/dist/store";
 import { Coordinates } from "@dnd-kit/utilities";
+import { useDisclose } from "~/hooks";
+import { MouseSensor, TouchSensor } from "~/hooks/useDndKit";
 
 type TBoardContentProps = {
   board: TBoard;
@@ -48,12 +45,6 @@ const ACTIVE_DRAG_ITEM_TYPE = {
 };
 
 const BoardContent = ({ board }: TBoardContentProps) => {
-  const pointerSensor = useSensor(PointerSensor, {
-    activationConstraint: {
-      distance: 10,
-    },
-  });
-
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
       distance: 10,
@@ -66,14 +57,8 @@ const BoardContent = ({ board }: TBoardContentProps) => {
       tolerance: 5,
     },
   });
-  const keyboardSensor = useSensor(KeyboardSensor);
 
-  const sensors = useSensors(
-    mouseSensor,
-    touchSensor,
-    keyboardSensor,
-    pointerSensor
-  );
+  const sensors = useSensors(mouseSensor, touchSensor);
 
   const dropAnimation = {
     sideEffects: defaultDropAnimationSideEffects({
@@ -85,6 +70,7 @@ const BoardContent = ({ board }: TBoardContentProps) => {
     }),
   };
 
+  const addList = useDisclose();
   const [columnData, setColumnData] = useState<TColumns[]>([]);
 
   const [activeDragItemData, setActiveDragItemData] = useState({
@@ -92,6 +78,7 @@ const BoardContent = ({ board }: TBoardContentProps) => {
     type: "",
     data: {} as any,
   });
+  const [newColumnTitle, setColumnTitle] = useState<string>("");
 
   const oldColumnWhenDraggingCard = useRef<TColumns | undefined>(
     {} as TColumns
@@ -338,6 +325,13 @@ const BoardContent = ({ board }: TBoardContentProps) => {
     [activeDragItemData, findColumnByCardId, setActiveDragItemData]
   );
 
+  const addNewColumn = useCallback(() => {
+    if (!newColumnTitle) return;
+
+    setColumnTitle("");
+    addList.onToggle();
+  }, [newColumnTitle, setColumnTitle, addList.onToggle]);
+
   useEffect(() => {
     const newArray = mapOrder(board.columns, board.columnOrderIds, "_id");
 
@@ -345,99 +339,89 @@ const BoardContent = ({ board }: TBoardContentProps) => {
   }, [board]);
 
   return (
-    <DndContext
-      collisionDetection={collisionDropAnimation}
-      onDragStart={onHandleDragStart}
-      sensors={sensors}
-      onDragOver={onHandleDragOver}
-      onDragEnd={onHandleDrag}
-    >
-      <SortableContext
-        strategy={horizontalListSortingStrategy}
-        items={columnData.map((c) => c._id)}
+    <>
+      <DndContext
+        collisionDetection={collisionDropAnimation}
+        onDragStart={onHandleDragStart}
+        sensors={sensors}
+        onDragOver={onHandleDragOver}
+        onDragEnd={onHandleDrag}
       >
-        <img
-          style={{
-            objectFit: "cover",
-            width: "100%",
-            height: "calc(100vh  - 118px)",
-            position: "absolute",
-            top: "118px",
-            zIndex: -1,
-          }}
-          src={background}
-          alt="background"
-          loading="lazy"
-        />
-
-        <Box
-          sx={{
-            height: "calc(100vh - 130px)",
-            width: "100%",
-            overflow: "auto",
-            "&::-webkit-scrollbar": {
-              width: "10px",
-            },
-            cursor: "pointer",
-
-            "&::-webkit-scrollbar-thumb": {
-              background: "#313A39",
-              borderRadius: "4px",
-            },
-          }}
+        <SortableContext
+          strategy={horizontalListSortingStrategy}
+          items={columnData.map((c) => c._id)}
         >
+          <img
+            style={{
+              objectFit: "cover",
+              width: "100%",
+              height: "calc(100vh  - 118px)",
+              position: "absolute",
+              top: "118px",
+              zIndex: -1,
+            }}
+            src={background}
+            alt="background"
+            loading="lazy"
+          />
+
           <Box
             sx={{
-              display: "flex",
-              height: "100%",
+              height: "calc(100vh - 130px)",
+              width: "100%",
+              overflow: "auto",
+              "&::-webkit-scrollbar": {
+                width: "10px",
+              },
+              cursor: "pointer",
+
+              "&::-webkit-scrollbar-thumb": {
+                background: "#313A39",
+                borderRadius: "4px",
+              },
             }}
           >
-            {columnData.map((item) => (
-              <BoardItem key={item._id} item={item} />
-            ))}
-
             <Box
               sx={{
-                padding: "10px",
+                display: "flex",
+                height: "100%",
               }}
             >
-              <Button
-                startIcon={<AddIcon />}
-                sx={{
-                  width: "200px",
-                  backgroundColor: (theme) =>
-                    theme.palette.mode === "dark" ? "black" : "#b9d3d0",
-                  height: "44px",
-                  color: (theme) =>
-                    theme.palette.mode === "dark" ? "white" : "black",
-                  justifyContent: "flex-start",
-                  padding: 2,
-                }}
-              >
-                Add another list
-              </Button>
+              {columnData.map((item) => (
+                <BoardItem key={item._id} item={item} />
+              ))}
+
+              <AddItemComponent
+                title="Add another list"
+                isOpen={addList.isOpen}
+                onToggle={addList.onToggle}
+                value={newColumnTitle}
+                onchange={setColumnTitle}
+                onClick={addNewColumn}
+                titleButton={"Add list"}
+              />
             </Box>
+            <DragOverlay dropAnimation={dropAnimation}>
+              {!activeDragItemData.type && null}
+              {activeDragItemData.activeId &&
+                activeDragItemData.type === ACTIVE_DRAG_ITEM_TYPE.COLUMN && (
+                  <BoardItem
+                    key={activeDragItemData.activeId}
+                    item={activeDragItemData.data as TColumns}
+                  />
+                )}
+              {activeDragItemData.activeId &&
+                activeDragItemData.type === ACTIVE_DRAG_ITEM_TYPE.CARD && (
+                  <MediaCard
+                    key={activeDragItemData.activeId}
+                    data={activeDragItemData.data as TCards}
+                  />
+                )}
+            </DragOverlay>
           </Box>
-          <DragOverlay dropAnimation={dropAnimation}>
-            {!activeDragItemData.type && null}
-            {activeDragItemData.activeId &&
-              activeDragItemData.type === ACTIVE_DRAG_ITEM_TYPE.COLUMN && (
-                <BoardItem
-                  key={activeDragItemData.activeId}
-                  item={activeDragItemData.data as TColumns}
-                />
-              )}
-            {activeDragItemData.activeId &&
-              activeDragItemData.type === ACTIVE_DRAG_ITEM_TYPE.CARD && (
-                <MediaCard
-                  key={activeDragItemData.activeId}
-                  data={activeDragItemData.data as TCards}
-                />
-              )}
-          </DragOverlay>
-        </Box>
-      </SortableContext>
-    </DndContext>
+        </SortableContext>
+      </DndContext>
+    </>
   );
 };
 
