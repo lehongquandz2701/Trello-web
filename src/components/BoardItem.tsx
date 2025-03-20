@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import { TColumns } from "~/utilities/types";
+import { TCards, TColumns } from "~/utilities/types";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import ListCard from "~/pages/Boards/BoardContent/ListCard";
@@ -7,13 +7,15 @@ import InputCustom from "./InputCustom";
 import { useDisclose } from "~/hooks";
 import AddItemComponent from "./AddItemComponent";
 import { useCallback, useState } from "react";
-import { toast } from "react-toastify";
+import { toastError, toastSuccess } from "~/utilities/constant";
+import { useCreateCard } from "~/mutations/useCreateCard";
 
 type TBoardItemProps = {
   item: TColumns;
+  onUpdateCard: (card: TCards) => void;
 };
 
-const BoardItem = ({ item }: TBoardItemProps) => {
+const BoardItem = ({ item, onUpdateCard }: TBoardItemProps) => {
   const {
     attributes,
     listeners,
@@ -30,25 +32,32 @@ const BoardItem = ({ item }: TBoardItemProps) => {
     opacity: isDragging ? 0.5 : undefined,
   };
 
+  const createCardMutation = useCreateCard();
   const addCard = useDisclose();
   const [newCardTitle, setCardTitle] = useState<string>("");
 
   const addNewColumn = useCallback(() => {
-    if (!newCardTitle)
-      return toast.error("Please Enter Title", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
+    if (!newCardTitle) return toastError("Please Enter Title");
 
-    setCardTitle("");
-    addCard.onToggle();
-  }, [newCardTitle, setCardTitle, addCard.onToggle]);
+    createCardMutation.mutate(
+      {
+        title: newCardTitle.trim(),
+        boardId: item.boardId,
+        columnId: item._id,
+      },
+      {
+        onSuccess(data) {
+          onUpdateCard(data);
+          toastSuccess("created column ");
+          setCardTitle("");
+          addCard.onToggle();
+        },
+        onError(error) {
+          toastError(error.message);
+        },
+      }
+    );
+  }, [newCardTitle, setCardTitle, addCard.onToggle, onUpdateCard]);
 
   return (
     <div {...attributes} style={dndKitColumnStyle} ref={setNodeRef}>

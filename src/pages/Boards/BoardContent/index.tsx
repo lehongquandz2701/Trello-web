@@ -34,6 +34,8 @@ import { RectMap } from "@dnd-kit/core/dist/store";
 import { Coordinates } from "@dnd-kit/utilities";
 import { useDisclose } from "~/hooks";
 import { MouseSensor, TouchSensor } from "~/hooks/useDndKit";
+import { useCreateColumn } from "~/mutations/useCreateColumn";
+import { toastError, toastSuccess } from "~/utilities/constant";
 
 type TBoardContentProps = {
   board: TBoard;
@@ -84,6 +86,8 @@ const BoardContent = ({ board }: TBoardContentProps) => {
     {} as TColumns
   );
   const lastOverId = useRef<UniqueIdentifier>("");
+
+  const createNewColumn = useCreateColumn();
 
   const onHandleDrag = useCallback(
     (e: DragEndEvent) => {
@@ -326,11 +330,49 @@ const BoardContent = ({ board }: TBoardContentProps) => {
   );
 
   const addNewColumn = useCallback(() => {
-    if (!newColumnTitle) return;
+    if (!newColumnTitle) return toastError("Please Enter Title");
 
-    setColumnTitle("");
-    addList.onToggle();
-  }, [newColumnTitle, setColumnTitle, addList.onToggle]);
+    createNewColumn.mutate(
+      {
+        boardId: board._id,
+        title: newColumnTitle.trim(),
+      },
+      {
+        onSuccess(data) {
+          setColumnData((prev) => {
+            const newColumn = cloneDeep(prev);
+            newColumn.push(data);
+            return newColumn;
+          });
+          toastSuccess("created column ");
+          setColumnTitle("");
+          addList.onToggle();
+        },
+        onError(error) {
+          toastError(error.message);
+        },
+      }
+    );
+  }, [newColumnTitle, setColumnTitle, addList.onToggle, setColumnData]);
+
+  const handleUpdateItemCardInColumn = useCallback(
+    (card: TCards) => {
+      setColumnData((prevColumns) =>
+        prevColumns.length
+          ? prevColumns.map((column) =>
+              column._id === card.columnId
+                ? {
+                    ...column,
+                    cards: [...(column.cards || []), card],
+                    cardOrderIds: [...(column.cardOrderIds || []), card._id],
+                  }
+                : column
+            )
+          : []
+      );
+    },
+    [setColumnData, columnData]
+  );
 
   useEffect(() => {
     const newArray = mapOrder(board.columns, board.columnOrderIds, "_id");
@@ -388,7 +430,11 @@ const BoardContent = ({ board }: TBoardContentProps) => {
               }}
             >
               {columnData.map((item) => (
-                <BoardItem key={item._id} item={item} />
+                <BoardItem
+                  onUpdateCard={handleUpdateItemCardInColumn}
+                  key={item._id}
+                  item={item}
+                />
               ))}
 
               <AddItemComponent
@@ -406,6 +452,7 @@ const BoardContent = ({ board }: TBoardContentProps) => {
               {activeDragItemData.activeId &&
                 activeDragItemData.type === ACTIVE_DRAG_ITEM_TYPE.COLUMN && (
                   <BoardItem
+                    onUpdateCard={handleUpdateItemCardInColumn}
                     key={activeDragItemData.activeId}
                     item={activeDragItemData.data as TColumns}
                   />
