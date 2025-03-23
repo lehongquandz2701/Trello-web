@@ -24,55 +24,6 @@ export default function BasicMenu({ title }: TBasicMenu) {
     setAnchorEl(null);
   };
 
-  const itemsList = React.useMemo(() => {
-    return (
-      <Menu
-        id="basic-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        MenuListProps={{
-          "aria-labelledby": "basic-button",
-        }}
-      >
-        <MenuItem onClick={handleClose}>
-          <ListItemIcon>
-            <ContentCut fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Cut</ListItemText>
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            ⌘X
-          </Typography>
-        </MenuItem>
-        <MenuItem onClick={handleClose}>
-          <ListItemIcon>
-            <ContentCopy fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Copy</ListItemText>
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            ⌘C
-          </Typography>
-        </MenuItem>
-        <MenuItem onClick={handleClose}>
-          <ListItemIcon>
-            <ContentPaste fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Paste</ListItemText>
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            ⌘V
-          </Typography>
-        </MenuItem>
-        <Divider />
-        <MenuItem>
-          <ListItemIcon>
-            <Cloud fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Web Clipboard</ListItemText>
-        </MenuItem>
-      </Menu>
-    );
-  }, [handleClose]);
-
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };

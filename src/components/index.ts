@@ -6,7 +6,7 @@ import MediaCard from "./MediaCard";
 import Loading from "./Loading";
 import AddItemComponent from "./AddItemComponent";
 import InputCustom from "./InputCustom";
-
+import PopupCustom from "./PopupCustom";
 export {
   AppBar,
   SelectAutoWidth,
@@ -16,4 +16,5 @@ export {
   Loading,
   AddItemComponent,
   InputCustom,
+  PopupCustom,
 };

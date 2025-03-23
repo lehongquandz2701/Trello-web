@@ -8,7 +8,7 @@ import { useDisclose } from "~/hooks";
 import AddItemComponent from "./AddItemComponent";
 import { useCallback, useState } from "react";
 import { toastError, toastSuccess } from "~/utilities/constant";
-import { useCreateCard } from "~/mutations/useCreateCard";
+import { useCreateCard } from "~/mutations/useCard";
 
 type TBoardItemProps = {
   item: TColumns;
@@ -77,7 +77,7 @@ const BoardItem = ({ item, onUpdateCard }: TBoardItemProps) => {
             height: "fit-content",
           }}
         >
-          <InputCustom value={item.title} isShowOption />
+          <InputCustom idColumn={item._id} value={item.title} isShowOption />
 
           <ListCard cards={item.cards} cardOrderIds={item.cardOrderIds} />
 

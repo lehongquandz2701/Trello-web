@@ -7,6 +7,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import themeMode from "./theme.ts";
 import QueryClientProvider from "./provider/queryClient.tsx";
 import { ToastContainer } from "react-toastify";
+import { ConfirmProvider } from "material-ui-confirm";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -14,7 +15,9 @@ createRoot(document.getElementById("root")!).render(
       <QueryClientProvider>
         <>
           <CssBaseline />
-          <App />
+          <ConfirmProvider>
+            <App />
+          </ConfirmProvider>
           <ToastContainer />
         </>
       </QueryClientProvider>

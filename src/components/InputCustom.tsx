@@ -1,13 +1,14 @@
-import { Box, IconButton, TextareaAutosize } from "@mui/material";
+import { Box, TextareaAutosize } from "@mui/material";
 import { useCallback, useMemo, useState } from "react";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { TextareaAutosizeProps } from "@mui/material";
+import PopupCustom from "./PopupCustom";
 
 type TInputCustomProps = {
   value?: string | number | readonly string[] | undefined;
   isShowOption?: boolean;
   styleInput?: React.CSSProperties;
   placeholder?: string;
+  idColumn: string;
 } & Omit<TextareaAutosizeProps, "style" | "placeholder" | "value">;
 
 const InputCustom = ({
@@ -15,6 +16,7 @@ const InputCustom = ({
   isShowOption = false,
   styleInput,
   placeholder,
+  idColumn,
   ...restProps
 }: TInputCustomProps) => {
   const [isFocus, setFocus] = useState(false);
@@ -78,24 +80,12 @@ const InputCustom = ({
         {...restProps}
       />
       {isShowOption && (
-        <IconButton
-          sx={{
-            position: "absolute",
-            top: 0,
-            right: 5,
-            ":hover": {
-              bgcolor: "#393b3d",
-              borderRadius: 2,
-            },
-          }}
-          aria-label="add an alarm"
-        >
-          <MoreHorizIcon />
-        </IconButton>
+        <div>
+          <PopupCustom columnId={idColumn} />
+        </div>
       )}
     </Box>
   );
 };
 
 export default InputCustom;
-//#22272b

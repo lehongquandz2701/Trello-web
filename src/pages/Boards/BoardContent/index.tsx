@@ -34,13 +34,14 @@ import { RectMap } from "@dnd-kit/core/dist/store";
 import { Coordinates } from "@dnd-kit/utilities";
 import { useDisclose } from "~/hooks";
 import { MouseSensor, TouchSensor } from "~/hooks/useDndKit";
+
+import { toastError, toastSuccess } from "~/utilities/constant";
 import {
   useArrangeCardsColumn,
   useCreateColumn,
   useUpdateColumn,
-} from "~/mutations/useCreateColumn";
-import { toastError, toastSuccess } from "~/utilities/constant";
-import { useUpdateIndexCard } from "~/mutations/useCreateCard";
+} from "~/mutations/useColumn";
+import { useUpdateIndexCard } from "~/mutations/useCard";
 
 type TBoardContentProps = {
   board: TBoard;

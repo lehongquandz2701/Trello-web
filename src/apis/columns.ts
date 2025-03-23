@@ -35,3 +35,11 @@ export const updateCardInsideColumn = async ({
   });
   return response.data;
 };
+
+export const deleteColumn = async ({ id }: { id: string }) => {
+  const response = await axiosClient<TColumns>({
+    method: "DELETE",
+    url: `/columns/${id}`,
+  });
+  return response.data;
+};
