@@ -52,8 +52,8 @@ const BoardItem = ({ item, onUpdateCard }: TBoardItemProps) => {
           setCardTitle("");
           addCard.onToggle();
         },
-        onError(error) {
-          toastError(error.message);
+        onError(error: any) {
+          toastError(error?.response?.data?.message);
         },
       }
     );

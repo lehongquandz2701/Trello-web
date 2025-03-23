@@ -18,3 +18,20 @@ export const createColumn = async ({
   });
   return response.data;
 };
+
+export const updateCardInsideColumn = async ({
+  id,
+  cardOrderIds,
+}: {
+  id: string;
+  cardOrderIds: string[];
+}) => {
+  const response = await axiosClient<TColumns>({
+    method: "PUT",
+    url: `/columns/${id}`,
+    data: {
+      cardOrderIds,
+    },
+  });
+  return response.data;
+};

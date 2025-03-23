@@ -34,8 +34,13 @@ import { RectMap } from "@dnd-kit/core/dist/store";
 import { Coordinates } from "@dnd-kit/utilities";
 import { useDisclose } from "~/hooks";
 import { MouseSensor, TouchSensor } from "~/hooks/useDndKit";
-import { useCreateColumn } from "~/mutations/useCreateColumn";
+import {
+  useArrangeCardsColumn,
+  useCreateColumn,
+  useUpdateColumn,
+} from "~/mutations/useCreateColumn";
 import { toastError, toastSuccess } from "~/utilities/constant";
+import { useUpdateIndexCard } from "~/mutations/useCreateCard";
 
 type TBoardContentProps = {
   board: TBoard;
@@ -88,6 +93,9 @@ const BoardContent = ({ board }: TBoardContentProps) => {
   const lastOverId = useRef<UniqueIdentifier>("");
 
   const createNewColumn = useCreateColumn();
+  const updateColumn = useUpdateColumn();
+  const updateIndexCard = useUpdateIndexCard();
+  const arrangeCardsColumn = useArrangeCardsColumn();
 
   const onHandleDrag = useCallback(
     (e: DragEndEvent) => {
@@ -100,7 +108,7 @@ const BoardContent = ({ board }: TBoardContentProps) => {
         const overColumn = findColumnByCardId(e.over?.id as string);
         if (!activeColumn || !overColumn) return;
 
-        //action drag card
+        //action of pulling the same card
 
         if (oldColumnWhenDraggingCard.current?._id === overColumn?._id) {
           const oldCardIndex =
@@ -130,7 +138,40 @@ const BoardContent = ({ board }: TBoardContentProps) => {
 
             return nextColumn;
           });
+
+          const cardIdOrder = dndOrderedCard
+            .filter((i) => !i.FE_PlaceholderCard)
+            .map((i) => i._id);
+
+          updateIndexCard.mutate({
+            id: overColumn?._id,
+            cardOrderIds: cardIdOrder,
+          });
         }
+
+        // action of dragging  another card
+
+        const prevColumnId = oldColumnWhenDraggingCard.current?._id;
+        const nextColumnId = over.data.current?.columnId;
+
+        let prevCardOrderIds: any = columnData.find(
+          (e) => e._id === prevColumnId
+        )?.cardOrderIds;
+        const nextCardOrderIds = columnData.find(
+          (e) => e._id === nextColumnId
+        )?.cardOrderIds;
+        const cardId = over.id;
+
+        if (prevCardOrderIds[0].includes("-placeholder-card"))
+          prevCardOrderIds = [];
+
+        arrangeCardsColumn.mutate({
+          prevColumnId,
+          nextColumnId,
+          prevCardOrderIds,
+          nextCardOrderIds,
+          currentCardId: cardId.toString(),
+        });
       } else {
         //action save drag in column
 
@@ -140,7 +181,13 @@ const BoardContent = ({ board }: TBoardContentProps) => {
           const newIndex = columnData.findIndex((c) => c._id === over?.id);
 
           const newColumnData = arrayMove(columnData, oldIndex, newIndex);
+
           setColumnData(newColumnData);
+
+          updateColumn.mutate({
+            id: board._id.toString(),
+            columnOrderIds: newColumnData.map((i) => i._id),
+          });
         }
       }
 
@@ -157,7 +204,7 @@ const BoardContent = ({ board }: TBoardContentProps) => {
   const findColumnByCardId = useCallback(
     (cardId: string) => {
       const data = columnData.find((i) =>
-        i.cards.map((j) => j._id).includes(cardId)
+        i.cards?.map((j) => j._id).includes(cardId)
       );
 
       return data;
@@ -296,7 +343,6 @@ const BoardContent = ({ board }: TBoardContentProps) => {
               (card) => card._id
             );
           }
-
           if (nextOverColumn) {
             nextOverColumn.cards = nextOverColumn.cards.filter(
               (i) => i._id !== e.active.id
@@ -342,14 +388,27 @@ const BoardContent = ({ board }: TBoardContentProps) => {
           setColumnData((prev) => {
             const newColumn = cloneDeep(prev);
             newColumn.push(data);
+            newColumn.forEach((column) => {
+              if (isEmpty(column?.cards)) {
+                column.cards = [
+                  {
+                    _id: `${column._id}-placeholder-card`,
+                    boardId: column.boardId,
+                    columnId: column._id,
+                    FE_PlaceholderCard: true,
+                  },
+                ];
+                column.cardOrderIds = [`${column._id}-placeholder-card`];
+              }
+            });
             return newColumn;
           });
           toastSuccess("created column ");
           setColumnTitle("");
           addList.onToggle();
         },
-        onError(error) {
-          toastError(error.message);
+        onError(error: any) {
+          toastError(error?.response?.data?.message);
         },
       }
     );
@@ -377,7 +436,22 @@ const BoardContent = ({ board }: TBoardContentProps) => {
   useEffect(() => {
     const newArray = mapOrder(board.columns, board.columnOrderIds, "_id");
 
-    setColumnData(newArray);
+    const newColumn = cloneDeep(newArray);
+    newColumn.forEach((column) => {
+      if (isEmpty(column?.cards)) {
+        column.cards = [
+          {
+            _id: `${column._id}-placeholder-card`,
+            boardId: column.boardId,
+            columnId: column._id,
+            FE_PlaceholderCard: true,
+          },
+        ];
+        column.cardOrderIds = [`${column._id}-placeholder-card`];
+      }
+    });
+
+    setColumnData(newColumn);
   }, [board]);
 
   return (
