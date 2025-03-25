@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host",
-    "build": "tsc -b && vite build --base./",
+    "dev": "cross-env BUILD_MODE=dev vite --host",
+    "build": "cross-env BUILD_MODE=production vite build --base=./",
     "lint": "eslint",
     "preview": "vite preview"
   },
@@ -25,6 +25,7 @@
     "@types/lodash": "^4.17.16",
     "@types/node": "^22.13.10",
     "axios": "^1.8.3",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.4.7",
     "lodash": "^4.17.21",
     "material-ui-confirm": "^4.0.0",
