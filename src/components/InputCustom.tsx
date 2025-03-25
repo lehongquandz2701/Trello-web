@@ -8,7 +8,7 @@ type TInputCustomProps = {
   isShowOption?: boolean;
   styleInput?: React.CSSProperties;
   placeholder?: string;
-  idColumn: string;
+  idColumn?: string;
 } & Omit<TextareaAutosizeProps, "style" | "placeholder" | "value">;
 
 const InputCustom = ({
@@ -34,7 +34,7 @@ const InputCustom = ({
     setFocus((prev) => !prev);
   }, [setFocus]);
 
-  const hideScrollbarStyle = {
+  const hideScrollbarStyle: any = {
     "&::-webkit-scrollbar": {
       display: "none",
     },
@@ -81,7 +81,7 @@ const InputCustom = ({
       />
       {isShowOption && (
         <div>
-          <PopupCustom columnId={idColumn} />
+          <PopupCustom columnId={idColumn ?? ""} />
         </div>
       )}
     </Box>

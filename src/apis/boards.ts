@@ -9,7 +9,7 @@ export const getBoards = async () => {
   return response.data;
 };
 
-export const getBoardsDetail = async (id?: string) => {
+export const getBoardsDetail = async () => {
   const response = await axiosClient<TBoard>({
     method: "GET",
     url: `/boards/67d7ec88376ad2643d0dad4e`,

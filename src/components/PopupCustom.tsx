@@ -46,7 +46,7 @@ export default function PopupCustom({ columnId }: PopupCustomProps) {
       },
     });
 
-    if (confirmed) {
+    if (confirmed || columnId) {
       deleteColumn.mutate(
         {
           id: columnId,
