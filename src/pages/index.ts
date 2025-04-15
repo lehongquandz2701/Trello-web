@@ -1,2 +1,4 @@
 import Board from "./Boards";
-export { Board };
+import LoginScreen from "./Auth/login";
+import Register from "./Auth/register";
+export { Board, LoginScreen, Register };
