@@ -1,5 +1,6 @@
 import axios from "axios";
 import { envs } from "~/utilities/constant";
+import { getIdToken } from "./firebase";
 
 const axiosClient = axios.create({
   baseURL: envs.BASE_URL,
@@ -11,11 +12,10 @@ const axiosClient = axios.create({
 // Add a request interceptor
 axiosClient.interceptors.request.use(
   async function (config) {
-    // Do something before request is sent
-    // const authJWTToken = (await getIdToken()) || "";
+    const authJWTToken = (await getIdToken()) || "";
 
-    // if (authJWTToken)
-    //   config.headers.set("Authorization", `Bearer ${authJWTToken}`);
+    if (authJWTToken)
+      config.headers.set("Authorization", `Bearer ${authJWTToken}`);
 
     config.headers["Content-Type"] =
       config?.data?.headerContentType || "application/json";

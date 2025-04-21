@@ -29,6 +29,7 @@
     "bcrypt": "^5.1.1",
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.7",
+    "firebase": "^11.6.0",
     "lodash": "^4.17.21",
     "material-ui-confirm": "^4.0.0",
     "react": "^18.3.1",
