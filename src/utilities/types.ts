@@ -35,3 +35,11 @@ export type TCards = {
   attachments?: string[];
   FE_PlaceholderCard?: boolean;
 };
+
+export type TUser = {
+  _id: string;
+  email: string;
+  fullname: string;
+  isAdmin: boolean;
+  createdAt: number;
+};

@@ -3,6 +3,10 @@ import BgLogin from "~/assets/image/image-screen-login.jpeg";
 import TextInput from "../TextInput";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useLogin } from "~/mutations/useAuthMutation";
+import { toastError } from "~/utilities/constant";
+import { useNavigate } from "react-router";
+import { useAuth } from "~/contexts/AuthContext";
 
 const schema = yup.object({
   email: yup
@@ -23,13 +27,32 @@ interface IFormInput {
 }
 
 const LoginScreen = () => {
+  const signIn = useLogin();
+  const navigate = useNavigate();
   const { handleSubmit, control } = useForm<IFormInput>({
     resolver: yupResolver(schema),
   });
 
-  const onSubmit: SubmitHandler<IFormInput> = (data) => {
-    console.log("data", data);
+  const { refetchUser } = useAuth();
+
+  const onSubmit: SubmitHandler<IFormInput> = async (data) => {
+    signIn.mutate(
+      {
+        email: data.email,
+        password: data.password,
+      },
+      {
+        async onSuccess() {
+          await refetchUser();
+          navigate("/");
+        },
+        onError(error) {
+          toastError(error.message);
+        },
+      }
+    );
   };
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-white">
       {/* Left section with image */}
