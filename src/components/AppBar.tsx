@@ -26,6 +26,8 @@ import { useCallback, useState } from "react";
 import { TrelloLogo } from "~/assets/icons";
 import BasicMenu from "./Menu";
 import { Logout, PersonAdd, Settings } from "@mui/icons-material";
+import { signOut } from "~/libs/firebase";
+import { useNavigate } from "react-router";
 
 const dataOption = [
   {
@@ -47,6 +49,7 @@ const dataOption = [
 
 const AppBar = () => {
   const { setMode, mode } = useColorScheme();
+  const route = useNavigate();
 
   const toggleMode = useCallback(
     (event: SelectChangeEvent) => {
@@ -54,7 +57,6 @@ const AppBar = () => {
     },
     [setMode, mode]
   );
-
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -62,6 +64,12 @@ const AppBar = () => {
   };
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    handleClose();
+    route("/login");
   };
 
   return (
@@ -204,7 +212,7 @@ const AppBar = () => {
           </ListItemIcon>
           Settings
         </MenuItem>
-        <MenuItem onClick={handleClose}>
+        <MenuItem onClick={handleSignOut}>
           <ListItemIcon>
             <Logout fontSize="small" />
           </ListItemIcon>

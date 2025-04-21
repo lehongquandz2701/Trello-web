@@ -1,16 +1,11 @@
-import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useForm, SubmitHandler } from "react-hook-form";
 import TextInput from "../TextInput";
-import { toastSuccess } from "~/utilities/constant";
+import { toastError, toastSuccess } from "~/utilities/constant";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-
-interface IFormInput {
-  username: string;
-  email: string;
-  password: string;
-}
+import { useRegister } from "~/mutations/useAuthMutation";
+import { IFormInput } from "~/apis/user";
 
 const schema = yup.object({
   username: yup
@@ -31,15 +26,26 @@ const schema = yup.object({
 
 export default function Register() {
   const navigate = useNavigate();
-
+  const register = useRegister();
   const { handleSubmit, control } = useForm<IFormInput>({
     resolver: yupResolver(schema),
   });
 
   const onSubmit: SubmitHandler<IFormInput> = async (data) => {
-    console.log("data", data);
-    toastSuccess(`${JSON.stringify(data)}`);
-    await navigate("/login");
+    register.mutate(
+      {
+        ...data,
+      },
+      {
+        onSuccess() {
+          toastSuccess("Register account successfully !!!");
+          navigate("/login");
+        },
+        onError() {
+          toastError("Register account fail");
+        },
+      }
+    );
   };
 
   return (
